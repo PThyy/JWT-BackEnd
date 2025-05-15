@@ -10,20 +10,23 @@ const hashUserPassword = (userPassword) => {
     return hashPassword;
 }
 
-const createNewUser = (email, password, username) => {
+const createNewUser = async (email, password, username) => {
+    const connection = await mysql.createConnection({
+        host: "localhost",
+        user: 'root',
+        database: 'jwt',
+        Promise: bluebird
+    });
     let hashPassword = hashUserPassword(password);
 
-    connection.query(
-        "INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
-        [email, hashPassword, username],
-        (err, results) => {
-            if (err) {
-                console.error("Error inserting data: ", err);
-                return res.status(500).send("Error inserting data");
-            }
-            console.log("Data inserted successfully: ", results);
-        }
-    );
+    try {
+        const [rows, fields] = await connection.execute(
+            "INSERT INTO users (email, password, username) VALUES (?, ?, ?)",
+            [email, hashPassword, username]
+        );
+    } catch (error) {
+        console.error("Error creating user: ", error);
+    }
 }
 
 const getUserList = async () => {
@@ -33,19 +36,36 @@ const getUserList = async () => {
         database: 'jwt',
         Promise: bluebird
     });
-    let users = [];
     try {
         const [rows, fields] = await connection.execute("SELECT * FROM users");
         console.log("User list: ", rows);
         return rows;
     } catch (error) {
         console.error("Error fetching data: ", error);
-        return users;
+    }
+}
+
+const deleteUser = async (id) => {
+    const connection = await mysql.createConnection({
+        host: "localhost",
+        user: 'root',
+        database: 'jwt',
+        Promise: bluebird
+    });
+
+    try {
+        const [rows, fields] = await connection.execute(
+            "DELETE FROM users WHERE id = ?",
+            [id]
+        );
+    } catch (error) {
+        console.error("Error deleting user: ", error);
     }
 }
 
 module.exports = {
     createNewUser,
     hashUserPassword,
-    getUserList
+    getUserList,
+    deleteUser
 }
