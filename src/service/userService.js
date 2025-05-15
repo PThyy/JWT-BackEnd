@@ -38,7 +38,6 @@ const getUserList = async () => {
     });
     try {
         const [rows, fields] = await connection.execute("SELECT * FROM users");
-        console.log("User list: ", rows);
         return rows;
     } catch (error) {
         console.error("Error fetching data: ", error);
@@ -58,14 +57,56 @@ const deleteUser = async (id) => {
             "DELETE FROM users WHERE id = ?",
             [id]
         );
+        return rows;
     } catch (error) {
         console.error("Error deleting user: ", error);
     }
+}
+
+const getUserById = async (id) => {
+    const connection = await mysql.createConnection({
+        host: "localhost",
+        user: 'root',
+        database: 'jwt',
+        Promise: bluebird
+    });
+
+    try {
+        const [rows, fields] = await connection.execute(
+            "SELECT * FROM users WHERE id = ?",
+            [id]
+        );
+        return rows;
+    } catch (error) {
+        console.error("Error deleting user: ", error);
+    }
+}
+
+const updateUserInfor = async (email, username, id) => {
+    const connection = await mysql.createConnection({
+        host: "localhost",
+        user: 'root',
+        database: 'jwt',
+        Promise: bluebird
+    });
+
+    try {
+        const [rows, fields] = await connection.execute(
+            "UPDATE users SET email = ?, username = ? WHERE id = ?",
+            [email, username, id]
+        );
+        return rows;
+    } catch (error) {
+        console.error("Error deleting user: ", error);
+    }
+
 }
 
 module.exports = {
     createNewUser,
     hashUserPassword,
     getUserList,
-    deleteUser
+    deleteUser,
+    getUserById,
+    updateUserInfor
 }
