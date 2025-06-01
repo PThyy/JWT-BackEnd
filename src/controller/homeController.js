@@ -6,6 +6,8 @@ const handleHelloWorld = (req, res) => {
 }
 
 const handleUserPage = async (req, res) => {
+    // console.log("cookies: ", req.cookies);
+
     let userList = await userService.getUserList();
     await userService.deleteUser(3)
     return res.render("user.ejs", { userList });
